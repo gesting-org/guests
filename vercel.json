@@ -2,6 +2,9 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    { "source": "/api/carrefour/:path*", "destination": "/api/carrefour" },
+    { "source": "/api/dolar/:path*",     "destination": "/api/dolar" },
+    { "source": "/api/callmebot/:path*", "destination": "/api/callmebot" },
+    { "source": "/((?!api/).*)",         "destination": "/index.html" }
   ]
 }
