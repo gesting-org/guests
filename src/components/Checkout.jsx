@@ -114,19 +114,21 @@ function MPBrick({ amount, orderMeta, onSuccess, onError, t, toUSD }) {
             onSubmit: async (formData) => {
               setStatus('processing');
               try {
-                // Procesar el pago via la misma Edge Function de preferencia
-                // El webhook de MP se encarga de guardar el pedido al confirmarse
-                const payRes = await fetch(`${supabaseUrl}/functions/v1/create-mp-preference`, {
+                // Procesar el pago con el token del Brick via la Edge Function process-payment
+                const payRes = await fetch(`${supabaseUrl}/functions/v1/process-payment`, {
                   method:  'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
-                    amount_ars:  amount,
-                    order_meta:  orderMeta,
-                    payment_data: formData,
+                    form_data:  formData,
+                    amount_ars: amount,
+                    order_meta: orderMeta,
                   }),
                 });
                 const payData = await payRes.json();
                 if (!payRes.ok) throw new Error(payData.error ?? 'payment_error');
+                if (payData.status === 'rejected') {
+                  throw new Error(`Pago rechazado: ${payData.status_detail}`);
+                }
                 onSuccess();
               } catch (err) {
                 setStatus('ready');
