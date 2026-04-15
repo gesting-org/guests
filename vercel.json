@@ -1,16 +1,7 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "rewrites": [
-    {
-      "source": "/:path*",
-      "destination": "/index.html",
-      "missing": [
-        { "type": "file" },
-        { "type": "function" }
-      ]
-    }
-  ],
+  "framework": "vite",
   "headers": [
     {
       "source": "/assets/(.*)",
