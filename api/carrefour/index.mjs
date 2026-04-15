@@ -2,18 +2,12 @@
 // Resuelve el problema de CORS en producción (Vercel)
 
 export default async function handler(req, res) {
-  // Reconstruir el path: /api/carrefour/foo/bar → /foo/bar
-  const { path = [] } = req.query;
-  const upstream = `https://www.carrefour.com.ar/${Array.isArray(path) ? path.join('/') : path}`;
-
-  const url = new URL(upstream);
-  const qs  = new URLSearchParams(
-    Object.entries(req.query).filter(([k]) => k !== 'path')
-  ).toString();
-  if (qs) url.search = qs;
+  const parsed   = new URL(req.url, 'http://localhost');
+  const subpath  = parsed.pathname.replace(/^\/api\/carrefour/, '');
+  const upstream = `https://www.carrefour.com.ar${subpath}${parsed.search}`;
 
   try {
-    const upstream_res = await fetch(url.toString(), {
+    const upstream_res = await fetch(upstream, {
       headers: { Accept: 'application/json' },
     });
     const data = await upstream_res.json();

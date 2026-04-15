@@ -2,18 +2,12 @@
 // Resuelve el problema de CORS en producción (Vercel)
 
 export default async function handler(req, res) {
-  const { path = [] } = req.query;
-  const pathStr = Array.isArray(path) ? path.join('/') : path;
-  const upstream = `https://api.callmebot.com/${pathStr}`;
-
-  const url = new URL(upstream);
-  const qs  = new URLSearchParams(
-    Object.entries(req.query).filter(([k]) => k !== 'path')
-  ).toString();
-  if (qs) url.search = qs;
+  const parsed   = new URL(req.url, 'http://localhost');
+  const subpath  = parsed.pathname.replace(/^\/api\/callmebot/, '');
+  const upstream = `https://api.callmebot.com${subpath}${parsed.search}`;
 
   try {
-    const upstream_res = await fetch(url.toString());
+    const upstream_res = await fetch(upstream);
     const text = await upstream_res.text();
 
     res.setHeader('Access-Control-Allow-Origin', '*');

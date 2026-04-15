@@ -2,8 +2,9 @@
 // Resuelve el problema de CORS en producción (Vercel)
 
 export default async function handler(req, res) {
-  const { path = [] } = req.query;
-  const upstream = `https://dolarapi.com/${Array.isArray(path) ? path.join('/') : path}`;
+  const parsed  = new URL(req.url, 'http://localhost');
+  const subpath = parsed.pathname.replace(/^\/api\/dolar/, '');
+  const upstream = `https://dolarapi.com${subpath}${parsed.search}`;
 
   try {
     const upstream_res = await fetch(upstream, {
@@ -11,7 +12,6 @@ export default async function handler(req, res) {
     });
     const data = await upstream_res.json();
 
-    // El tipo de cambio no cambia tan seguido — cachear 3 min
     res.setHeader('Cache-Control', 's-maxage=180, stale-while-revalidate=300');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.status(upstream_res.status).json(data);
