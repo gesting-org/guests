@@ -16,7 +16,7 @@ import {
 import { fetchBooking, bookingToGuestInfo } from './booking.js';
 import { saveOrder } from './db.js';
 
-// ─── Logo gestin ──────────────────────────────────────────────────────────────
+// ─── Logo gesting ──────────────────────────────────────────────────────────────
 // variant="full" → logo-full.png  (logotipo completo)
 // variant="icon" → logo-icon.png  (solo el isotipo)
 // Fallback SVG si los PNGs no están en /public todavía.
@@ -30,7 +30,7 @@ export function Gestin6Logo({ size = 'md', variant = 'full' }) {
     return (
       <img
         src={src}
-        alt="gestin"
+        alt="gesting"
         style={{ height: h, width: 'auto' }}
         className="object-contain"
         onError={() => setErr(true)}
@@ -40,10 +40,10 @@ export function Gestin6Logo({ size = 'md', variant = 'full' }) {
 
   // Fallback SVG mientras no haya PNGs en /public
   return (
-    <svg viewBox="0 0 148 36" height={h} fill="none" aria-label="gestin">
+    <svg viewBox="0 0 148 36" height={h} fill="none" aria-label="gesting">
       <text x="0" y="27" fontFamily='"Plus Jakarta Sans",sans-serif'
             fontWeight="300" fontSize="28" letterSpacing="-0.5" fill="currentColor">
-        gestin
+        gesting
       </text>
       <rect x="117" y="13" width="22" height="17" rx="4" fill="currentColor"/>
       <path d="M121 13V9.5C121 6.462 123.462 4 126.5 4s5.5 2.462 5.5 5.5V13"
@@ -731,7 +731,9 @@ function AppInner() {
   // ─────────────────────────────────────────────────────────────────────────
 
   if (!guestInfo) return <CodeEntry onValidCode={setGuestInfo} t={t} />;
-  if (daysUntilCheckin(activeCheckinDate) <= 1) return <CheckinBlocked guestInfo={guestInfo} t={t} />;
+  // El host puede reabrir los pedidos a mano hasta un horario (desde el PMS).
+  const reopenedByHost = guestInfo.ordersOpenUntil && new Date(guestInfo.ordersOpenUntil).getTime() > Date.now();
+  if (daysUntilCheckin(activeCheckinDate) <= 1 && !reopenedByHost) return <CheckinBlocked guestInfo={guestInfo} t={t} />;
 
   if (view === 'success') {
     return (
@@ -1086,7 +1088,7 @@ function AppInner() {
       />
 
       <footer className="text-center pb-8 pt-4">
-        <p className="font-body text-xs text-gray-300">Powered by your host · gestin</p>
+        <p className="font-body text-xs text-gray-300">Powered by your host · gesting</p>
       </footer>
     </div>
   );

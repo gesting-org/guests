@@ -17,31 +17,56 @@ export async function fetchBooking(rawCode) {
 
   try {
     // 1. Buscar la reserva
+    // Nombres de tabla en minúscula ("reservations", no "Reservation") y sin
+    // columna "nights" — el PMS nuevo (Fabel_PMS) no la guarda, se calcula
+    // acá a partir de checkIn/checkOut.
     const { data: res, error: resErr } = await supabase
-      .from('Reservation')
-      .select('id, bookingCode, guestId, propertyId, checkIn, checkOut, checkInTime, checkOutTime, nights, status')
+      .from('reservations')
+      .select('id, bookingCode, guestId, propertyId, checkIn, checkOut, checkInTime, checkOutTime, status')
       .eq('bookingCode', code)
       .single();
 
     if (resErr || !res) return { ok: false, error: 'not_found' };
 
     // 2. Buscar huésped y propiedad en paralelo
+    // El PMS nuevo guarda el nombre del huésped en un solo campo "name" (no
+    // firstName/lastName separados).
     const [{ data: guest }, { data: property }] = await Promise.all([
-      supabase.from('Guest').select('firstName, lastName').eq('id', res.guestId).single(),
-      supabase.from('Property').select('name, address, city').eq('id', res.propertyId).single(),
+      supabase.from('guests').select('name').eq('id', res.guestId).single(),
+      supabase.from('properties').select('name, address, city').eq('id', res.propertyId).single(),
     ]);
+
+    // Reapertura manual de pedidos (la setea el PMS). Consulta aparte y tolerante:
+    // si falla, se aplica la regla normal en vez de romper la búsqueda.
+    let ordersOpenUntil = null;
+    try {
+      const { data: win } = await supabase
+        .from('reservations')
+        .select('ordersOpenUntil')
+        .eq('id', res.id)
+        .single();
+      ordersOpenUntil = win?.ordersOpenUntil ?? null;
+    } catch {
+      /* sin reapertura */
+    }
+
+    const nights =
+      res.checkIn && res.checkOut
+        ? Math.round((new Date(res.checkOut).getTime() - new Date(res.checkIn).getTime()) / 86_400_000)
+        : 0;
 
     return {
       ok: true,
       data: {
         bookingCode:    res.bookingCode ?? '',
-        guestFirstName: guest?.firstName ?? '',
+        guestFirstName: guest?.name ?? '',
         checkIn:        res.checkIn  ? res.checkIn.slice(0, 10)  : '',
         checkOut:       res.checkOut ? res.checkOut.slice(0, 10) : '',
         checkInTime:    res.checkInTime  ?? '',
         checkOutTime:   res.checkOutTime ?? '',
-        nights:         res.nights  ?? 0,
+        nights,
         status:         res.status  ?? '',
+        ordersOpenUntil,
         property: {
           name:    property?.name    ?? '',
           address: property?.address ?? '',
@@ -68,6 +93,7 @@ export function bookingToGuestInfo(data) {
     checkoutTime:    data.checkOutTime,
     nights:          data.nights,
     status:          data.status,
+    ordersOpenUntil: data.ordersOpenUntil ?? null,
     propertyName:    data.property.name,
     propertyAddress: data.property.address,
     propertyCity:    data.property.city,

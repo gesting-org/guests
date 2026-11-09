@@ -87,11 +87,11 @@ const en = {
 
   // ── CheckinBlocked ──
   blocked_today_title:    "Today is your check-in!",
-  blocked_today_sub:      (p) => `Your reservation at ${p} starts today. Ordering is now closed.`,
+  blocked_today_sub:      () => `Your stay starts today. Ordering is now closed.`,
   blocked_tomorrow_title: 'Your reservation is coming up',
-  blocked_tomorrow_sub:   (p) => `Your check-in at ${p} is tomorrow. Ordering is no longer available.`,
+  blocked_tomorrow_sub:   () => `Your check-in is tomorrow. Ordering is no longer available.`,
   blocked_past_title:     'Welcome to your stay!',
-  blocked_past_sub:       (p) => `We hope you're enjoying ${p}. The ordering period has closed.`,
+  blocked_past_sub:       () => `We hope you're enjoying your stay. The ordering period has closed.`,
   blocked_res_title:      'Your reservation',
   contact_host:           (h) => `Need something? Contact ${h} directly.`,
 
@@ -201,11 +201,11 @@ const es = {
 
   // ── CheckinBlocked ──
   blocked_today_title:    '¡Hoy es tu check-in!',
-  blocked_today_sub:      (p) => `Tu reserva en ${p} comienza hoy. El período de pedidos está cerrado.`,
+  blocked_today_sub:      () => `Tu estadía comienza hoy. El período de pedidos está cerrado.`,
   blocked_tomorrow_title: 'Tu reserva es muy próxima',
-  blocked_tomorrow_sub:   (p) => `Tu check-in en ${p} es mañana. Ya no es posible hacer nuevos pedidos.`,
+  blocked_tomorrow_sub:   () => `Tu check-in es mañana. Ya no es posible hacer nuevos pedidos.`,
   blocked_past_title:     '¡Bienvenido a tu estadía!',
-  blocked_past_sub:       (p) => `Esperamos que estés disfrutando ${p}. El período de pedidos ya cerró.`,
+  blocked_past_sub:       () => `Esperamos que estés disfrutando tu estadía. El período de pedidos ya cerró.`,
   blocked_res_title:      'Tu reserva',
   contact_host:           (h) => `¿Necesitás algo? Contactá a ${h} directamente.`,
 
